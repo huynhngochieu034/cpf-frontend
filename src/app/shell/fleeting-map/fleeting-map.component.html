@@ -1,0 +1,354 @@
+<div class="mapContent row p-0 m-0">
+  <div class="col-3 p-0">
+      <!-- <button id ="icon" type="button" class="btn btn-default btn-circle">100</button> -->
+    <div class="VehTtile">
+      <h3 *ngIf="carSetID, else commonTitl" class="text-center">{{carSetID}}</h3>
+      <ng-template #commonTitl>
+          <h3 class="text-center">Tracking Board</h3>
+          
+      </ng-template>
+    </div>
+<!--     <div class="tablist">
+      <div *ngIf="vehicleArr.length, else EmptyVehList">
+        <div *ngFor="let vehicle of vehicleArr">
+          <button class="tablinks" (click)="SetVehID(vehicle)">{{vehicle}}</button>
+        </div>
+        </div>
+      </div> -->
+    <!--Accordion Show Car Stats-->
+    <div id="accordion" role="tablist" aria-multiselectable="false">
+      <!--OPTION VEHICLE-->
+
+        <div class="card">
+            <div class="card-header" role="tab" id="headingFour">
+              <div class="mb-0">
+                <a  (click)="isCollapsed = !isCollapsed" data-toggle="collapse" 
+                data-parent="#accordion" data-target="#collapseFour"
+                  aria-controls="collapseFour" class="collapsed">
+                  <h4>Choose Vehicle</h4>
+                </a>
+                
+              </div>
+            </div>
+        
+            <div id="collapseFour" *ngIf="isCollapsed" >
+              <div class="card-block">
+                  <div class="col-sm-3">
+                  <table class="table table-striped">
+                      <thead style="background-color:rgb(62, 62, 175)">
+                          <tr style="color: #fff">
+                            <th><input type="checkbox" [(ngModel)]="isCheckedParent" (change)="checkAllChild()" name="isCheckedParent"/></th>
+                              <th>Select all vehicle</th>
+                          </tr>
+                          </thead>
+                      <tbody>
+                        <tr *ngFor="let vehicle of checkedVehicleArr">
+                          <td><input type="checkbox" (change)="checkParent(vehicle, $event)"
+                            [(ngModel)]="vehicle.checked" id="checkboxChild" /></td>
+                          <td>{{vehicle.vehicleId}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-sm-3">
+                      <button id="btnOK" [class.disabled]="disableDelete" (click)="affectGoogleMap()" type="button" class="btn btn-primary" 
+                      data-toggle="tooltip" title="Choose selected vehicle" style="width: 200px">
+                          <span>
+                              <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                        </span>
+                      </button>
+                  </div>
+            </div>
+            </div>
+          </div>
+      <!--Vehicle list-->
+      <!-- <div *ngFor="let vehicle of vehicleArr2">
+        <div class="card">
+          <div class="card-header" role="tab" id="headingOne">
+              <div class="mb-0">
+                <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="false"
+                  aria-controls="collapseOne" class="collapsed">
+                  <h4>{{vehicle.vehicleId}}</h4>
+                </a>
+              </div>
+            </div> -->
+          <!-- <div id="collapseOne" class="collapse" data-parent="#accordion" role="tabpanel" aria-labelledby="headingOne" aria-expanded="false">
+            <div class="card-block">
+            <div *ngIf="globMarker.CarStat[vehicle].list.length, else EmptyInfList">
+                <div *ngFor="let vehinfo of globMarker.CarStat[vehicle].list"
+                [class.selected]="vehinfo === selectedInfo"
+                (click)="onSelect(vehinfo)">
+                  <span class="badge">
+                      <font color="red">{{globMarker.CarStat[vehicle].list.indexOf(vehinfo)}} </font><font color="blue">{{vehinfo.GpsLatitude}}, {{vehinfo.GpsLongitude}}</font>
+                  </span>
+                  </div>
+                </div>
+            </div>
+          </div> -->
+          <!-- </div>
+        </div> -->
+      <!--ENGINE STATUS-->
+      <div class="card">
+        <div class="card-header" role="tab" id="headingOne">
+          <div class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="false"
+              aria-controls="collapseOne" class="collapsed">
+              <h4>Engine Status</h4>
+            </a>
+          </div>
+        </div>
+    
+        <div id="collapseOne" class="collapse" data-parent="#accordion" role="tabpanel" aria-labelledby="headingOne" aria-expanded="false">
+          <div class="card-block">
+            <ul *ngIf="carSetID, else commonData">
+              <li>Engine Load: {{globMarker.CarStat[carSetID].list[carSetPathIndex].CalculatedEngineLoad}} %</li>
+              <li>Engine Coolant: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EngineCoolantTemp}} </li>
+              <li>InTake MAP: {{globMarker.CarStat[carSetID].list[carSetPathIndex].IntakeMAP}} kPa</li>
+              <li>Engine RPM: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EngineRPM}} RPM</li>
+              <li>Throttle Position: {{globMarker.CarStat[carSetID].list[carSetPathIndex].ThrottlePosition}} %</li>
+              <li>Engine Torque: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EngineTorque}} %</li>
+              <li>Run Time: {{globMarker.CarStat[carSetID].list[carSetPathIndex].RunTime}} Hours</li>
+              <li>Current Speed: {{globMarker.CarStat[carSetID].list[carSetPathIndex].VehicleSpeed}} Km/h</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--FUEL STATUS-->
+      <div class="card">
+        <div class="card-header" role="tab" id="headingTwo">
+          <div class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo" aria-expanded="false"
+              aria-controls="collapseOne" class="collapsed">
+              <h4>Fuel Status</h4>
+            </a>
+          </div>
+        </div>
+        <div id="collapseTwo" class="collapse" data-parent="#accordion" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false">
+          <div class="card-block">
+            <ul *ngIf="carSetID, else commonData">
+              <li>Fuel Level: {{globMarker.CarStat[carSetID].list[carSetPathIndex].FuelLevel}} %</li>
+              <li>Fuel Pressure: {{globMarker.CarStat[carSetID].list[carSetPathIndex].FuelPressure}} kPa</li>
+              <li>Fuel Temperature: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EngineOilTemp}}</li>
+              <li>Fuel Type: {{globMarker.CarStat[carSetID].list[carSetPathIndex].FuelType}}</li>
+              <li>Ethanol: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EthanolFuel}} %</li>
+              <li>Fuel Rate: {{globMarker.CarStat[carSetID].list[carSetPathIndex].EngineFuelRate}} L/h</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--AIR STATUS-->
+      <div class="card">
+        <div class="card-header" role="tab" id="headingThree">
+          <div class="mb-0">
+            <a data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
+              aria-controls="collapseOne" class="collapsed">
+              <h4>Air Status</h4>
+            </a>
+          </div>
+        </div>
+        <div id="collapseThree" class="collapse" data-parent="#accordion" role="tabpanel" aria-labelledby="headingThree" aria-expanded="false">
+          <div class="card-block">
+            <ul *ngIf="carSetID, else commonData">
+              <li>Intake Air: {{globMarker.CarStat[carSetID].list[carSetPathIndex].IntakeAirTemp}}</li>
+              <li>MAF Air Flow: {{globMarker.CarStat[carSetID].list[carSetPathIndex].MAFAirFlow}}</li>
+              <li>Ambient Air: {{globMarker.CarStat[carSetID].list[carSetPathIndex].AmbientAirTemp}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Template data when no Car selected -->
+    <ng-template #commonData>
+        <p class="mb-0">Collecting data...</p>
+        <p class="mt-1">Click The CardId to View Stats...</p>
+      </ng-template>
+    <ng-template #EmptyInfList>
+        <p class="mb-0">List Data of vehicle is empty...</p>
+        <p class="mt-1">Please choose anothers...</p>
+      </ng-template>
+    <ng-template #EmptyVehList>
+        <p class="mb-0">List of vehicle is empty...</p>
+      </ng-template>
+  </div>
+ 
+  <div class="col-9 p-0" >
+
+    <!--DEMO AGM MARKER NUMBER-->
+    <!--Map Initalization option-->
+  <agm-map id="agmMap"
+  [latitude]="originlat"
+  [longitude]="originlng"
+  [zoom]="zoom"
+  [disableDefaultUI]="false"
+  [zoomControl]="true" 
+  (zoomChange)="checkZoom($event)">
+
+ <!--Update CarMarker location-->
+<div *ngIf="maxZoomLevel==true">
+    <agm-marker
+    [latitude]="originlat"
+    [longitude]="originlng"
+    [label]="labelOptions"     
+    [iconUrl]="{url: iconCircleMap, scaledSize: {height: 40,width: 40}}">
+  </agm-marker>
+</div>
+
+
+<div *ngIf="maxZoomLevel==false">
+    <agm-marker *ngFor="let vehicle of vehicleArr2; let i = index"
+    [latitude]="globMarker.CarMark[vehicle]?.lat"
+                  [longitude]="globMarker.CarMark[vehicle]?.lng"
+                  [iconUrl]="{
+                    url:globMarker.CarMark[vehicle]?.icon, 
+                    scaledSize: {
+                    width: 25,
+                    height: 25
+                  }}"
+                  (markerClick)='infoID(vehicle, i)'>
+                  
+                  <!--Info window Show CarID-->
+                   <agm-snazzy-info-window
+                        [closeOnMapClick]="false" 
+                        [placement]="'bottom'"
+                        [padding]="'5px 15px'"
+                        [fontColor]="'black'"
+                        [backgroundColor]="'#fbc02d'"
+                        [isOpen]="'true'">
+                  <ng-template>{{vehicle}}</ng-template>
+                  </agm-snazzy-info-window>
+  </agm-marker>
+</div>
+
+
+
+
+    <!--Map Initalization option-->
+    <!-- <agm-map id="agmMap"
+            [latitude]="originlat" 
+            [longitude]="originlng"
+            [zoom]="zoom"
+            [disableDefaultUI]="false"
+            [zoomControl]="true" 
+            (zoomChange)="checkZoom($event)"> -->
+
+      <!--Update CarMarker location-->
+      <!-- <agm-marker *ngFor="let vehicle of vehicleArr; let i = index"
+                  [latitude]="globMarker.CarMark[vehicle]?.lat"
+                  [longitude]="globMarker.CarMark[vehicle]?.lng"
+                  [iconUrl]="{
+                    url:globMarker.CarMark[vehicle]?.icon, 
+                    scaledSize: {
+                    width: 25,
+                    height: 25
+                  }}"
+                  (markerClick)='infoID(vehicle, i)'> -->
+                  <!--Info window Show CarID-->
+                  <!-- <agm-snazzy-info-window
+                        [closeOnMapClick]="false" 
+                        [placement]="'bottom'"
+                        [padding]="'5px 15px'"
+                        [fontColor]="'black'"
+                        [backgroundColor]="'#fbc02d'"
+                        [isOpen]="'true'">
+                  <ng-template>{{vehicle}}</ng-template>
+                  </agm-snazzy-info-window>
+      </agm-marker> -->
+
+      <ng-container *ngFor="let vehicle of vehicleArr; let i = index">
+        <!--Get updated Path-->
+        <ng-container *ngFor="let path of globMarker.CarMark[vehicle]?.path; let i = index; trackBy: trackByFunction">
+          <!--Check if new GpsSpot and Car Marker overlap -->
+          <ng-container *ngIf="(i != (globMarker.CarMark[vehicle]?.path.length -1)) && overView">
+            <!--Check Map Zoom level to Optimize number of GpsSpot-->
+
+              <agm-marker *ngIf="(i % zoomOptz == 0)"
+              [latitude]="path.gpslat"
+              [longitude]="path.gpslng"
+              [iconUrl]="mapSpot"
+              (markerClick)='infoID(vehicle, i)'> -->
+              <!--Info Window of Car Stat's Sample-->
+               <agm-snazzy-info-window 
+                [padding]="'5px'" [borderRadius]="'5%'" [closeOnMapClick]="true"
+                [maxHeight]="'300px'" [maxWidth]="'400px'">
+                  <ng-template >
+                    <div class="card border-success card_info" style="width: 280px;">
+                      <div class="card-header">
+                        <b class="text-success">{{vehicle}}</b> </div>
+                      <div class="card-body text-success" >
+                        <p class="card-title mb-1" >
+                            {{path.now | date:'medium'}}
+                        </p>
+                        <div class="row">
+                          <p class="card-text col-6">Latitude</p> <p class="card-text col-6">{{path.gpslat}}</p>
+                          <p class="card-text col-6">Longitude</p> <p class="card-text col-6">{{path.gpslng}}</p>
+                          <p class="card-text col-6">Speed</p> <p class="card-text col-6">{{path.speed}} Km/h</p>
+                          <p class="card-text col-6">Fuel Level</p> <p class="card-text col-6">{{path.fuel.toFixed(2)}} %</p>
+                          <p class="card-text col-6">Temperature</p> <p class="card-text col-6">{{path.temp}} &#8451;</p>
+                          
+                        </div>
+                      </div>
+                      <div class="card-footer">
+                          <p class="m-0 text-center">Click SomewhereElse To Close InfoWindow</p>
+                      </div> -->
+                       <div class="card-footer bg-transparent border-success">Footer</div> -->
+                     </div>
+                  </ng-template>
+                </agm-snazzy-info-window> 
+             </agm-marker> 
+
+
+
+            <!-- <agm-marker *ngIf="(i % zoomOptz == 0)"
+              [latitude]="path.gpslat"
+              [longitude]="path.gpslng"
+              [iconUrl]="mapSpot"
+              (markerClick)='infoID(vehicle, i)'> -->
+              <!--Info Window of Car Stat's Sample-->
+                <!-- <agm-snazzy-info-window 
+                [padding]="'5px'" [borderRadius]="'5%'" [closeOnMapClick]="true"
+                [maxHeight]="'300px'" [maxWidth]="'400px'">
+                  <ng-template >
+                    <div class="card border-success card_info" style="width: 280px;">
+                      <div class="card-header">
+                        <b class="text-success">{{vehicle}}</b> </div>
+                      <div class="card-body text-success" >
+                        <p class="card-title mb-1" >
+                            {{path.now | date:'medium'}}
+                        </p>
+                        <div class="row">
+                          <p class="card-text col-6">Latitude</p> <p class="card-text col-6">{{path.gpslat}}</p>
+                          <p class="card-text col-6">Longitude</p> <p class="card-text col-6">{{path.gpslng}}</p>
+                          <p class="card-text col-6">Speed</p> <p class="card-text col-6">{{path.speed}} Km/h</p>
+                          <p class="card-text col-6">Fuel Level</p> <p class="card-text col-6">{{path.fuel.toFixed(2)}} %</p>
+                          <p class="card-text col-6">Temperature</p> <p class="card-text col-6">{{path.temp}} &#8451;</p>
+                          
+                        </div>
+                      </div>
+                      <div class="card-footer">
+                          <p class="m-0 text-center">Click SomewhereElse To Close InfoWindow</p>
+                      </div> -->
+                      <!-- <div class="card-footer bg-transparent border-success">Footer</div> -->
+                    <!-- </div>
+                  </ng-template>
+                </agm-snazzy-info-window> -->
+            <!-- </agm-marker> -->
+          </ng-container>
+        </ng-container>
+        
+        <!--Draw Polyline base on GPS of each Car-->
+        <agm-polyline [strokeColor]="'rgb(66, 176, 250)'">
+          <agm-polyline-point *ngFor="let path of globMarker.CarMark[vehicle]?.path" 
+          [latitude]="path.gpslat" [longitude]="path.gpslng">
+          </agm-polyline-point>
+        </agm-polyline>
+      </ng-container>
+    </agm-map>
+  </div>
+</div>
+
+<!-- <agm-marker *ngFor="let m of markers; let i = index" (markerClick)="clickedMarker(m.label, i)" [latitude]="m.lat"
+  [longitude]="m.lng" [iconUrl]="{url:m.icon, scaledSize: {
+                    width: 25,
+                    height: 25
+                  }}" [markerDraggable]="m.draggable">
+</agm-marker> -->

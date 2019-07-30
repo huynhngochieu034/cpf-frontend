@@ -1,0 +1,46 @@
+* {
+  // stylelint-disable-next-line selector-max-universal
+  &:active,
+  :focus {
+    outline: none !important;
+  }
+}
+
+label {
+  margin-bottom: 0;
+}
+
+code {
+  white-space: nowrap;
+  border-radius: 10px;
+  padding: 0 8px 1px 8px;
+}
+
+.mat-menu-content {
+  .fa-icon {
+    position: relative;
+    top: 2px;
+    left: 4px;
+  }
+}
+
+@import "~@angular/material/theming";
+
+@mixin anms-styles-reset-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $foreground: map-get($theme, foreground);
+
+  a {
+    color: mat-color($foreground, text);
+
+    &:hover {
+      color: mat-color($accent);
+    }
+  }
+
+  code {
+    color: mat-color($accent, lighter-contrast);
+    background-color: mat-color($accent, lighter);
+  }
+}

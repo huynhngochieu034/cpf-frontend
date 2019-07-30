@@ -1,0 +1,29 @@
+{
+    "CAR_INFO_DOM":{
+        "VEHICLE_ID": "car-id",
+        "ENGINE_LOAD": "car-engine-load",
+        "ENGINE_COOLANT": "car-engine-coolant",
+        "ENGINE_INTAKE_MAP": "car-intake-map",
+        "ENGINE_RPM": "car-engine-RPM",
+        "ENGINE_THROTTLE_POSITION": "car-throttle-position",
+        "ENGINE_TORQUE": "car-engine-torque",
+        "ENGINE_RUNTIME": "car-engine-runtime",
+        "ENGINE_VEHICLE_SPEED": "car-vehicle-speed",
+        "FUEL_LEVEL": "car-fuel-level",
+        "FUEL_PRESSURE": "car-fuel-pressure",
+        "FUEL_TEMP": "car-fuel-temp",
+        "FUEL_TYPE": "car-fuel-type",
+        "FUEL_ETHANOL": "car-fuel_ethanol",
+        "FUEL_RATE": "car-fuel-rate",
+        "AIR_INTAKE_TEMP": "car-air-intake-temp",
+        "AIR_MAF_FLOW": "car-air-maf-flow",
+        "AIR_AMBIENT_TEMP": "car-air-ambient-temp",
+        "ENGINE_STATUS": "car-engine-status",
+        "FUEL_STATUS": "car-fuel-status"
+    },
+    "CAR_RULE":{
+        "OVER_SPEED": 80,
+        "HIGH_SPEED": 60,
+        "LOW_FUEL": 10
+    }
+}

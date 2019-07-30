@@ -1,0 +1,889 @@
+$def with (devices)
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Connected Vehicle Visualization</title>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <!-- Jquery Google CDN-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <style>
+        .card{
+            min-width:270px;
+        }
+        .card .card-body{
+            padding-bottom:0;
+            max-height:230px;
+            overflow-y: scroll;
+        }
+        ::-webkit-scrollbar{
+            display:none;
+        }
+        .btn_vid {
+            border: none;
+            display:flex;
+            float:right;
+        }
+        /* ************************ */
+        .car-info {
+            position: relative;
+            display: inline-block;
+        }
+
+        .car-info .detail {
+            margin: 0 auto;
+        }
+
+        .car-info .detail img {
+            width: 100%;
+        }
+
+        .car-info .detail h2 {
+            text-align: center;
+        }
+
+        .car-info .detail ul {
+            list-style-type: none;
+            text-align: left;
+            line-height: 1.5;
+            font-size: 17px;
+            color: blue;
+            padding: 0px
+        }
+
+        .car-info .detail ul .error {
+            color: #9e1919;
+        }
+
+        .car-info:hover .detail {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .left-contain {
+            float: left;
+            width: 100%;
+            word-wrap: break-word;
+        }
+
+        #contain .panel.panel-default {
+            max-height: 215px;
+            width: 297px;
+            overflow-x: auto;
+        }
+
+        #contain {
+            /* height: 400px; */
+            display: inline-block;
+            padding: 5px;
+            position: relative;
+        }
+
+        .right-contain {
+            position: absolute;
+            margin-left: 320px;
+            margin-top: -18px;
+            background-color: white;
+            box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            height: 427px;
+            width: 420px;
+        }
+
+        .right-contain #myVideo {
+            width: 420px;
+            height: 410px;
+        }
+
+        .btn-video {
+            /* position: absolute; */
+            right: 6px;
+            height: 30px;
+            width: 50px;
+            bottom: -5px;
+        }
+
+        .btn-video-slide {
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #000 !important;
+            background-color: #f1f1f1 !important;
+            z-index: 2;
+        }
+
+        .btn-video-slide:hover {
+            color: #000 !important;
+            background-color: #f1f1f1 !important;
+        }
+
+        .btn-video-left {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(0%, -50%);
+            transform: translate(0%, -50%);
+            -webkit-transform: translate(0%, -50%);
+            -moz-transform: translate(0%, -50%);
+        }
+
+        .btn-video-right {
+            position: absolute;
+            top: 50%;
+            right: 0%;
+            transform: translate(0%, -50%);
+            -webkit-transform: translate(0%, -50%);
+            -moz-transform: translate(0%, -50%);
+            -ms-transform: translate(0%, -50%);
+            -o-transform: translate(0%, -50%);
+        }
+    </style>
+   
+</head>
+
+
+<body>
+    <div id="map" style="width: 100%;"></div>
+    <!--Set Height for Map, eliminate scroll bar-->
+   
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.29&key=AIzaSyDgYI-L8nXVzQWJpgoHbm4pTMAEInR50TY"></script>
+    
+    <script>
+        /*
+         * Google layer using Google Maps API
+         */
+        /* global google: true */ 
+        L.Google = L.Layer.extend({
+            includes: L.Mixin.Events,
+            options: {
+                minZoom: 0,
+                maxZoom: 18,
+                tileSize: 256,
+                subdomains: 'abc',
+                errorTileUrl: '',
+                attribution: '',
+                opacity: 1,
+                continuousWorld: false,
+                noWrap: false,
+                mapOptions: {
+                    backgroundColor: '#dddddd'
+                }
+            },
+
+            //Possible types: SATELLITE, ROADMAP, HYBRID, TERRAIN
+            initialize: function(type, options) {
+                L.Util.setOptions(this, options);
+
+                this._ready = google.maps.Map !== undefined;
+                if (!this._ready) L.Google.asyncWait.push(this);
+
+                this._type = type || 'ROADMAP';
+            },
+
+            onAdd: function(map, insertAtTheBottom) {
+                this._map = map;
+                this._insertAtTheBottom = insertAtTheBottom;
+
+                //create a container div for tiles
+                this._initContainer();
+                this._initMapObject();
+
+                //set up events
+                map.on('viewreset', this._reset, this);
+
+                this._limitedUpdate = L.Util.throttle(this._update, 150, this);
+                map.on('move', this._update, this);
+
+                map.on('zoomanim', this._handleZoomAnim, this);
+
+                // 20px instead of 1em to avoid a slight overlap with google's attribution
+                map._controlCorners.bottomright.style.marginBottom = '20px';
+
+                this._reset();
+                this._update();
+            },
+
+            onRemove: function(map) {
+                map._container.removeChild(this._container);
+
+                map.off('viewreset', this._reset, this);
+
+                map.off('move', this._update, this);
+
+                map.off('zoomanim', this._handleZoomAnim, this);
+
+                map._controlCorners.bottomright.style.marginBottom = '0em';
+            },
+
+            getAttribution: function() {
+                return this.options.attribution;
+            },
+
+            setOpacity: function(opacity) {
+                this.options.opacity = opacity;
+                if (opacity < 1) {
+                    L.DomUtil.setOpacity(this._container, opacity);
+                }
+            },
+
+            setElementSize: function(e, size) {
+                e.style.width = size.x + 'px';
+                e.style.height = size.y + 'px';
+            },
+
+            _initContainer: function() {
+                var tilePane = this._map._container,
+                    first = tilePane.firstChild;
+
+                if (!this._container) {
+                    this._container = L.DomUtil.create('div', 'leaflet-google-layer');
+                    this._container.id = '_GMapContainer_' + L.Util.stamp(this);
+                    this._container.style.zIndex = 'auto';
+                }
+
+                tilePane.insertBefore(this._container, first);
+
+                this.setOpacity(this.options.opacity);
+                this.setElementSize(this._container, this._map.getSize());
+            },
+
+            _initMapObject: function() {
+                if (!this._ready) return;
+                this._google_center = new google.maps.LatLng(0, 0);
+                var map = new google.maps.Map(this._container, {
+                    center: this._google_center,
+                    zoom: 0,
+                    tilt: 0,
+                    mapTypeId: google.maps.MapTypeId[this._type],
+                    disableDefaultUI: true,
+                    keyboardShortcuts: false,
+                    draggable: false,
+                    disableDoubleClickZoom: true,
+                    scrollwheel: false,
+                    streetViewControl: false,
+                    styles: this.options.mapOptions.styles,
+                    backgroundColor: this.options.mapOptions.backgroundColor
+                });
+
+                var _this = this;
+                this._reposition = google.maps.event.addListenerOnce(map, 'center_changed',
+                    function() {
+                        _this.onReposition();
+                    });
+                this._google = map;
+
+                google.maps.event.addListenerOnce(map, 'idle',
+                    function() {
+                        _this._checkZoomLevels();
+                    });
+                google.maps.event.addListenerOnce(map, 'tilesloaded',
+                    function() {
+                        _this.fire('load');
+                    });
+                //Reporting that map-object was initialized.
+                this.fire('MapObjectInitialized', {
+                    mapObject: map
+                });
+            },
+
+            _checkZoomLevels: function() {
+                //setting the zoom level on the Google map may result in a different zoom level than the one requested
+                //(it won't go beyond the level for which they have data).
+                // verify and make sure the zoom levels on both Leaflet and Google maps are consistent
+                if ((this._map.getZoom() !== undefined) && (this._google.getZoom() !== Math.round(this._map.getZoom()))) {
+                    //zoom levels are out of sync. Set the leaflet zoom level to match the google one
+                    this._map.setZoom(this._google.getZoom());
+                }
+            },
+
+            _reset: function() {
+                this._initContainer();
+            },
+
+            _update: function() {
+                if (!this._google) return;
+                this._resize();
+
+                var center = this._map.getCenter();
+                var _center = new google.maps.LatLng(center.lat, center.lng);
+
+                this._google.setCenter(_center);
+                if (this._map.getZoom() !== undefined)
+                    this._google.setZoom(Math.round(this._map.getZoom()));
+                this._checkZoomLevels();
+            },
+
+            _resize: function() {
+                var size = this._map.getSize();
+                if (this._container.style.width === size.x &&
+                    this._container.style.height === size.y)
+                    return;
+                this.setElementSize(this._container, size);
+                this.onReposition();
+            },
+
+
+            _handleZoomAnim: function(e) {
+                var center = e.center;
+                var _center = new google.maps.LatLng(center.lat, center.lng);
+
+                this._google.setCenter(_center);
+                this._google.setZoom(Math.round(e.zoom));
+            },
+
+
+            onReposition: function() {
+                if (!this._google) return;
+                google.maps.event.trigger(this._google, 'resize');
+            }
+        });
+
+        L.Google.asyncWait = [];
+        L.Google.asyncInitialize = function() {
+            var i;
+            for (i = 0; i < L.Google.asyncWait.length; i++) {
+                var o = L.Google.asyncWait[i];
+                o._ready = true;
+                if (o._container) {
+                    o._initMapObject();
+                    o._update();
+                }
+            }
+            L.Google.asyncWait = [];
+        };
+    </script>
+
+    <script>
+        var getWinHeight = $$(window).height();
+        $$("#map").css({
+            height: getWinHeight,
+        })
+    </script>
+
+    <script>
+        var iconLink = 'images/car_normal.png'; //green and cute
+        var iconWarning = 'images/car_warning.png';
+        var iconAlert = 'images/car_alert.png';
+
+        var video1Url = "https://static.videezy.com/system/resources/previews/000/004/055/original/Cars_moving_in_a_city.mp4";
+        var video3Url = "https://static.videezy.com/system/resources/previews/000/004/353/original/77.mp4";
+        var video2Url = "https://static.videezy.com/system/resources/previews/000/005/915/original/IMG_3416.mp4";
+
+        var CONFIG = CONFIG || {};
+        CONFIG.CAR_DATA = {
+            CAR_01: {
+                VIDEO: [video2Url, video1Url,video3Url]
+            }
+        }
+
+        var carWarning = L.icon({
+            iconUrl: iconWarning,
+            iconRetinaUrl: '',
+            iconSize: [20, 32]
+        });
+
+        var carIcon = L.icon({
+            iconUrl: iconLink,
+            iconRetinaUrl: '',
+            iconSize: [20, 32]
+        });
+
+        var carAlert = L.icon({
+            iconUrl: iconAlert,
+            iconRetinaUrl: '',
+            iconSize: [20, 32]
+        });
+
+        var mymap = new L.Map('map', {
+            center: new L.LatLng(10.85378, 106.6284),
+            zoom: 17,
+        });
+
+        var PID = {
+            calculatedEngineLoad: "0004",
+            engineCoolantTemp: "0005",
+            intakeMAP: "000B",
+            engineRPM: "000C",
+            throttlePosition: "0011",
+            engineTorque: "0062",
+            runTime: "001F",
+            vehicleSpeed: "000D",
+            fuelLevel: "002F",
+            fuelPressure: "000A",
+            engineOilTemp: "005C",
+            fuelType: "0051",
+            ethanolFuel: "0052",
+            engineFuelRate: "005E",
+            intakeAirTemp: "000F",
+            mAFAirFlow: "0010",
+            ambientAirTemp: "0046"
+        }
+
+        CONFIG.CAR_INFO_DOM = {
+            VEHICLE_ID: 'car-id',
+            ENGINE_LOAD: 'car-engine-load',
+            ENGINE_COOLANT: 'car-engine-coolant',
+            ENGINE_INTAKE_MAP: 'car-intake-map',
+            ENGINE_RPM: 'car-engine-RPM',
+            ENGINE_THROTTLE_POSITION: 'car-throttle-position',
+            ENGINE_TORQUE: 'car-engine-torque',
+            ENGINE_RUNTIME: 'car-engine-runtime',
+            ENGINE_VEHICLE_SPEED: 'car-vehicle-speed',
+            FUEL_LEVEL: 'car-fuel-level',
+            FUEL_PRESSURE: 'car-fuel-pressure',
+            FUEL_TEMP: 'car-fuel-temp',
+            FUEL_TYPE: 'car-fuel-type',
+            FUEL_ETHANOL: 'car-fuel_ethanol',
+            FUEL_RATE: 'car-fuel-rate',
+            AIR_INTAKE_TEMP: 'car-air-intake-temp',
+            AIR_MAF_FLOW: 'car-air-maf-flow',
+            AIR_AMBIENT_TEMP: 'car-air-ambient-temp',
+            ENGINE_STATUS: 'car-engine-status',
+            FUEL_STATUS: 'car-fuel-status'
+        }
+
+        CONFIG.CAR_RULE = {
+            OVER_SPEED: 80,
+            HIGH_SPEED: 60,
+            LOW_FUEL: 10
+        }
+
+        CONFIG.CAR_TYPE = {
+            TOYOTA: "https://images.toyota-europe.com/gb/c-hr/width/1200/exterior-right-front.jpg",    
+            MERCEDES: "http://st.motortrend.ca/uploads/sites/10/2015/11/2016-mercedes-benz-cls-400-sedan-angular-front.png",
+            BMW: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLxz59SVtrMccapLMh4rqf80YJl8mURiF9oJxD3MyU2wwgi8vm",
+            LAMBORGHINI: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTokP9BHJHPSc71mB33408PmT1_9L8ZagnZG1ywhwM9QlR8l1s",
+            CHERVOLET: "http://chevroletvinhnghean.com.vn/Images/userfiles/images/chevrolet-cruze-thump.png"
+        }
+
+
+        var googleLayer = new L.Google('ROADMAP');
+        mymap.addLayer(googleLayer);
+
+        var listMarker = [];
+        var globMarker = []
+        
+        function getDeviceInfo() {
+
+            const url = 'http://172.18.4.50:8000/all/getlocation';
+            $$.get(url, function(data) {
+            var obj = JSON.parse(data);
+            $$.each(obj, function(index) {
+                var vehicleid = obj[index].vehicleid;
+                //console.log(obj[index]);
+                var long = obj[index].longitude;
+                var lat = obj[index].latitude;
+                var found = false;
+                var icon;
+                var latLong = new L.LatLng(lat, long);
+                var fuelStatus = "";
+                var speedStatus = "";
+                // Engine Status
+                //var defaultValue = NaN;
+                var calculatedEngineLoad = obj[index][PID.calculatedEngineLoad];
+                //console.log("calculatedEngineLoad : " + typeof obj[index][PID.calculatedEngineLoad] + "& ||" + typeof calculatedEngineLoad );
+                var engineCoolantTemp = obj[index][PID.engineCoolantTemp] ;
+                var intakeMAP = obj[index][PID.intakeMAP] ;
+                var engineRPM = obj[index][PID.engineRPM] ;
+                var throttlePosition = obj[index][PID.throttlePosition] ;
+                var engineTorque = obj[index][PID.engineTorque] ;
+                var runTime = obj[index][PID.runTime] ;
+                var vehicleSpeed = obj[index][PID.vehicleSpeed] ;
+
+                if(vehicleSpeed > CONFIG.CAR_RULE.OVER_SPEED) {
+                    icon = carAlert;
+                    speedStatus = "Vehicle speed is over 80Km/h";
+                }
+                else if (vehicleSpeed > CONFIG.CAR_RULE.HIGH_SPEED) {
+                    icon = carWarning;
+                    speedStatus = "Vehicle speed is over 60Km/h";
+                }
+                else {
+                    icon = carIcon;
+                    speedStatus = ""
+                }
+                // Fuel Status
+                var fuelLevel = obj[index][PID.fuelLevel]  ;
+                if(fuelLevel < CONFIG.CAR_RULE.FUEL){
+                    fuelStatus = "Fuel is lower than 10%";
+                }
+
+                var fuelPressure = obj[index][PID.fuelPressure]  ;
+                var engineOilTemp = obj[index][PID.engineOilTemp] ;
+                var fuelType = obj[index][PID.fuelType] ;
+
+                if(fuelType == 0) {
+                    fuelType = "Not available";
+                }
+                else if (fuelType == 1) {
+                    fuelType = "Gasoline";
+                }
+                else if (fuelType == 2) {
+                    fuelType = "Methanol";
+                }
+                else if (fuelType == 3) {
+                    fuelType = "Ethanol";
+                }
+                else {
+                    fuelType = "Diesel";
+                }
+
+                var ethanolFuel = obj[index][PID.ethanolFuel]  ;
+                var engineFuelRate = obj[index][PID.engineFuelRate] ;
+
+                // Air Status
+                var intakeAirTemp = obj[index][PID.intakeAirTemp] ;
+                var mAFAirFlow = obj[index][PID.mAFAirFlow] ;
+                var ambientAirTemp = obj[index][PID.ambientAirTemp] ;
+                var checkLocation = parseInt(lat);
+                
+                for (var i = 0; i < listMarker.length; i++) {
+                    if (listMarker[i].id.localeCompare(vehicleid) == 0) {
+                        found = true;
+                        //console.log("longtitude: "+listMarker[i].mark.getLatLng().lat + " latitude: " + listMarker[i].mark.getLatLng().lng);
+                        var lng = listMarker[i].mark.getLatLng().lng;
+                        var lat = listMarker[i].mark.getLatLng().lat;
+                        if (!listMarker[i].mark.getLatLng().equals(latLong) && Boolean(found)) {
+                            //Update car info
+                            updateCarInfo(vehicleid, calculatedEngineLoad, engineCoolantTemp, intakeMAP, engineRPM, throttlePosition, engineTorque, runTime, vehicleSpeed, fuelLevel, fuelPressure, engineOilTemp, fuelType, ethanolFuel, engineFuelRate, intakeAirTemp, mAFAirFlow, ambientAirTemp, speedStatus, fuelStatus, lat, lng);
+                            //listMarker[i].mark.bindPopup(str);
+                            listMarker[i].mark.setIcon(icon);
+                            if(checkLocation != 0) {
+                                listMarker[i].mark.setLatLng(latLong);
+                            }
+                        }
+                    }
+                }
+                //Boolean(found) == false
+                if (!Boolean(found) ) {
+                    var str = showPopupInfo( vehicleid );
+                    var marker = new L.marker([10.85573, 106.62798],
+                                                {icon: icon, 
+                                                draggable: true })
+                                                .addTo(mymap).bindPopup(str);
+                    var randomColor = '#'+ ('000000' + Math.floor(Math.random()*16777215).toString(16)).slice(-6);
+                    var markElem = {
+                        mark: marker,
+                        id: vehicleid,
+                        ontrack:false,
+                        path:[],
+                        pathcolor:randomColor
+                    }
+                    listMarker.push(markElem);
+                    var key = CONFIG.CAR_INFO_DOM.VEHICLE_ID+vehicleid
+                    globMarker[key] = markElem;
+                    //console.log(listMarker)
+                    //console.log(globMarker)
+                    if(checkLocation != 0) {
+                        marker.setLatLng(latLong);
+                    }
+                } 
+                });
+            });
+        };
+
+        //Call getDeviceInfo fucntion every 1s
+        getDeviceInfo()
+        setInterval(function(){ getDeviceInfo(); }, 1000);
+
+        function updateCarInfo(vehicleid, calculatedEngineLoad, engineCoolantTemp, intakeMAP, engineRPM, throttlePosition, engineTorque, runTime, vehicleSpeed, fuelLevel, fuelPressure, engineOilTemp, fuelType, ethanolFuel, engineFuelRate, intakeAirTemp, mAFAirFlow, ambientAirTemp, engineStatus, fuelStatus, lat, long) {
+            //window.console.log("updateCarInfo vehicleid : "+vehicleid);
+            //use .data() method to attach data to specific id
+            //$$('#' + CONFIG.CAR_INFO_DOM.VEHICLE_ID + vehicleid).data( "gps", { lati: lat, lngti: long } )
+            
+            //update data to specific id in template string
+            var deviceNumber = vehicleid;
+            updateTextWithPrefixId( vehicleid, deviceNumber,CONFIG.CAR_INFO_DOM.VEHICLE_ID );
+            
+            var engine_load = formatInfo("Engine Load: ", calculatedEngineLoad.toFixed(2), " %");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_LOAD, engine_load, vehicleid);
+            var engine_coolant_temp = formatInfo("Engine Coolant: ", engineCoolantTemp, ' \xB0C');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_COOLANT, engine_coolant_temp, vehicleid);
+            var engine_intake_map = formatInfo("InTake MAP: ", intakeMAP, " kPa");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_INTAKE_MAP, engine_intake_map, vehicleid);
+            var engine_rpm = formatInfo("Engine RPM: ", engineRPM.toFixed(2), " RPM");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_RPM, engine_rpm, vehicleid);
+            var throttle_position = formatInfo("Throttle Position: ", throttlePosition.toFixed(2), " %");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_THROTTLE_POSITION, throttle_position, vehicleid);
+            var engine_torque = formatInfo("Engine Torque: ", engineTorque.toFixed(2), " %");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_TORQUE, engine_torque, vehicleid)
+            var time = runTime/3600;
+            var engine_runTime = formatInfo("Run Time: ", time.toFixed(2), " Hours");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_RUNTIME, engine_runTime, vehicleid);
+            var engine_current_speed = formatInfo("Current Speed: ", vehicleSpeed, " Km/h");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_VEHICLE_SPEED, engine_current_speed, vehicleid);
+            var fuel_level = formatInfo("Fuel Level: ", fuelLevel.toFixed(2), " %");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_LEVEL, fuel_level, vehicleid);
+            var fuel_pressure = formatInfo("Fuel Pressure: ", fuelPressure ," kPa");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_PRESSURE, fuel_pressure, vehicleid);
+            var fuel_temp = formatInfo("Fuel Temperature: ", engineOilTemp, ' \xB0C');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_TEMP, fuel_temp, vehicleid);
+            var fuel_type = formatInfo("Fuel Type: ", fuelType, '');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_TYPE, fuel_type, vehicleid);
+            var fuel_ethanol = formatInfo("Ethanol: ", ethanolFuel.toFixed(), " %");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_ETHANOL, fuel_ethanol, vehicleid);
+            var fuel_rate = formatInfo("Fuel Rate: ", engineFuelRate.toFixed(2), " L/h");
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_RATE, fuel_rate, vehicleid);
+            var air_intake_temp = formatInfo("Intake Air: ", intakeAirTemp, ' \xB0C');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.AIR_INTAKE_TEMP, air_intake_temp, vehicleid);
+            var air_maf_flow = formatInfo("MAF Air Flow: ", mAFAirFlow, ' \xB0C');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.AIR_MAF_FLOW, air_maf_flow, vehicleid);
+            var air_ambient_temp = formatInfo("Ambient Air: ", ambientAirTemp, ' \xB0C');
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.AIR_AMBIENT_TEMP, air_ambient_temp, vehicleid);
+
+            var engine_status;
+            if(engineStatus != "") {
+                engine_status = engineStatus;
+            }
+            else {
+                engine_status = "Your engine status is OK ";
+            }
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.ENGINE_STATUS, engine_status, vehicleid);
+
+            var fuel_status;
+            if(fuelStatus != "") {
+                fuel_status = fuelStatus;
+            }
+            else {
+                fuel_status = "Your fuel status is OK ";
+            }
+            updateTextWithPrefixId(CONFIG.CAR_INFO_DOM.FUEL_STATUS, fuel_status, vehicleid);
+        }
+
+        function formatInfo(prefix, value, postfix) {
+            if (value == 'NaN' || !value) {
+                return prefix;
+            } 
+            return prefix + value + postfix;
+        }
+
+        function updateTextWithPrefixId(id, text, prefixId) {
+            //car-idUC1EXR
+            $$('#'+prefixId+id).text(text);
+        }
+
+        function showPopupInfo( vehicleid ) {
+            var contentString = document.createElement('div');
+            var cardDomId = CONFIG.CAR_INFO_DOM.VEHICLE_ID + vehicleid   //car-idUC1EXR
+            
+            // Prefix id for each vehicel's dom ///ex :UC1EXRcar-engine-load
+            var prefixId = vehicleid 
+            //Empty Template string with assigned ID fo vehicle data
+            contentString.innerHTML = 
+                    `
+                <div id="contain">
+                    <!--Left contain-->
+                    <div class="left-contain car-info">
+                        <div class="detail">
+                            <h3 id="$${cardDomId}" class="idNum" align="center"></h3>
+                            
+                            <div id="accordion">
+                                
+                                <div class="card">
+                                    <a class="btn btn-dark text-white" role="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false"
+                                    aria-controls="collapse1">
+                                        Engine Status
+                                    </a>
+                                    
+                                    <div id="collapse1" class="collapse" data-parent="#accordion">
+                                        <div class="card-body">
+                                            <ul>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_LOAD}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_COOLANT}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_INTAKE_MAP}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_RPM}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_THROTTLE_POSITION}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_TORQUE}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_RUNTIME}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_VEHICLE_SPEED}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_STATUS}"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <a class="btn btn-dark collapsed text-white" role="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false"
+                                    aria-controls="collapse2">
+                                        Fuel Status
+                                    </a>
+                                    
+                                    <div id="collapse2" class="collapse" data-parent="#accordion">
+                                        <div class="card-body">
+                                            <ul>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.ENGINE_FUEL_LEVEL}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_PRESSURE}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_TEMP}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_TYPE}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_ETHANOL}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_RATE}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.FUEL_STATUS}"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <a class="btn btn-dark collapsed text-white" role="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false"
+                                    aria-controls="collapse3">
+                                        Air Status
+                                    </a>
+                                    
+                                    <div id="collapse3" class="collapse" data-parent="#accordion">
+                                        <div class="card-body">
+                                            <ul>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.AIR_INTAKE_TEMP}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.AIR_MAF_FLOW}"></li>
+                                                <li id="$${prefixId + CONFIG.CAR_INFO_DOM.AIR_AMBIENT_TEMP}"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!--Right contain-->
+                    <div class="right-contain" id="video-contain" style="display:none;">
+                        <button id="btn-video-prev" class="btn-video-slide btn-video-left" onclick="showPrevVideo()" style="display:none;">&#10094; </button>
+                        <button id="btn-video-next" class="btn-video-slide btn-video-right"  onclick="showNextVideo()" style="display:none;"> &#10095;</button>
+                        <video id="myVideo" autoplay>
+                        </video>
+                    </div>
+                    <div class="btn_vid">
+                        <button id="btn-tracking" class="btn btn-success" onClick="trackingStart('$${cardDomId}')">Fleet Start</button>
+                        <button id="btn-stoptrack" class="btn btn-danger" onClick="trackingStop('$${cardDomId}')">Fleet Stop</button>
+                        <button id="btn-show-video" class="btn btn-primary" onclick="showVideo('car-01')">>></button>
+                        <button id="btn-hide-video" class="btn btn-primary" onclick="hideVideo()" style="display:none;" ><<</button>
+                    </div>
+                    
+
+                </div>`;
+            return contentString.innerHTML;
+        }
+        
+        function trackingStart(id){
+            globMarker[id].ontrack = true
+            console.log("Tracking: " + id)
+        }
+        function trackingStop(id){
+            globMarker[id].ontrack = false
+            console.log("stop tracking: "+id)
+        }
+        
+        
+        function reDrawRoute() {
+                if (Object.keys(globMarker).length != 0) {
+                    for (key in globMarker) {
+                        if (globMarker.hasOwnProperty(key)) {
+                            //console.log(globMarker[key].id);
+                            var lngi = globMarker[key].mark.getLatLng().lng;
+                            var lati = globMarker[key].mark.getLatLng().lat
+                            
+                            if (globMarker[key].ontrack == true) {
+                                
+                                globMarker[key].path.push({ lat: lati, lng: lngi })
+                                //console.log( globMarker[key].path);
+                                if (globMarker[key].path.length > 0) {
+                                    var polyline = new L.polyline(globMarker[key].path, {
+                                        color: globMarker[key].pathcolor,
+                                        weight: 3,
+                                        opacity: 0.5,
+                                        smoothFactor: 1
+                                    }).addTo(mymap);
+                                }
+                                else{
+                                    globMarker[key].path = []
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        reDrawRoute()
+        setInterval(function(){
+            reDrawRoute();
+        },2000)
+        //Map location pop-up configuration on random click
+        var popup = L.popup();
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(mymap);
+        }
+        mymap.on('click', onMapClick);
+
+        var isShowVideo = false;
+        var currentSource = "";
+        var currVideoIndex = 0;
+        var videoPanelIsOpening = false;
+        var vid = document.getElementById("myVideo");
+
+        function showNextVideo() {
+            currVideoIndex++;
+            // Return to first video if it is last
+            if (currVideoIndex > CONFIG.CAR_DATA.CAR_01.VIDEO.length - 1) {
+                currVideoIndex = 0;
+            }
+            vid.src = CONFIG.CAR_DATA.CAR_01.VIDEO[currVideoIndex];
+            vid.play();
+        }
+
+        function showPrevVideo() {
+            currVideoIndex--;
+            // Show last video
+            if (currVideoIndex < 0) {
+                currVideoIndex = CONFIG.CAR_DATA.CAR_01.VIDEO.length - 1;
+            }
+            vid.src = CONFIG.CAR_DATA.CAR_01.VIDEO[currVideoIndex];
+            vid.play();
+        }
+            
+        function showVideo(carId) {
+            vid = document.getElementById("myVideo");
+            if (vid && carId) {
+                $$("#video-contain").show();
+                $$(".btn-video-slide").show();
+                $$("#btn-show-video").hide();
+                $$("#btn-hide-video").show();
+                currVideoIndex = 0;
+                if (carId == 'car-01') {
+                    vid.src = CONFIG.CAR_DATA.CAR_01.VIDEO[0];
+                }
+                vid.play();
+                isShowVideo = true;
+                videoPanelIsOpening = true;
+            }
+        }
+
+        function hideVideo() {
+            if (vid) {
+                $$(".btn-video-slide").hide();
+                $$("#btn-show-video").show();
+                $$("#btn-hide-video").hide();
+                vid.pause();
+                vid.src = "";
+                $$("#video-contain").hide();
+                isShowVideo = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

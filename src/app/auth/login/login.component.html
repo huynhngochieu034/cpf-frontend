@@ -1,0 +1,67 @@
+<div class="login-block h-100 login-theme">
+  <div class="row mx-0 h-100 align-items-center">
+    <div class="container">
+      <div class="row ">
+        <div class="col-md-4 login-sec">
+          <h2 class="text-center">Login Now</h2>
+          
+          <!--Begin LOGIN FORM-->
+          <!-- <form (ngSubmit)="login()" class="login-form"> -->
+          <form [formGroup]='formLogin' #SignInForm="ngForm" (ngSubmit)='DangNhap()'>
+            <!--User Validation-->
+            <div class="form-group">
+              <mat-form-field class="w-100" appearance="outline" >
+                <mat-label>Username</mat-label>
+                <input matInput placeholder="Login Account" (keyup)='revError()' formControlName='TaiKhoanSI'/>
+                <div *ngIf="formLogin.get('TaiKhoanSI').invalid && 
+                  (formLogin.get('TaiKhoanSI').touched || formLogin.get('TaiKhoanSI').dirty)">
+                    <span *ngIf="formLogin.get('TaiKhoanSI').errors['required']" class='text-danger font-small'>
+                      Your Account Required
+                    </span>
+                    <!-- <span *ngIf="formLogin.get('TaiKhoanSI').errors['pattern']" class="text-danger font-small">
+                      Invalid Pattern
+                    </span> -->
+                  </div>
+              </mat-form-field>
+            </div>
+
+            <!--PassWord Validation-->
+            <div class="form-group">
+              <mat-form-field class="w-100" appearance="outline">
+                <mat-label>Password</mat-label>
+                <input matInput type="password" placeholder="Password" (keyup)='revError()' formControlName='MatKhauSI'/>
+                <div *ngIf="formLogin.get('MatKhauSI').invalid && 
+                (formLogin.get('MatKhauSI').touched || formLogin.get('MatKhauSI').dirty)">
+                  <span *ngIf="formLogin.get('MatKhauSI').errors['required']" class="text-danger font-small">
+                    Password Required
+                  </span>
+                  <span *ngIf="formLogin.get('MatKhauSI').errors['minlength'] || 
+                      formLogin.get('MatKhauSI').errors['maxlength'] "
+                    class="text-danger font-small">
+                    Password Rank 3-15 Characters</span>
+                </div>
+              </mat-form-field>
+            </div>
+
+            <div class="form-check p-0">
+              <label class="form-check-label">
+                <mat-checkbox type="checkbox" formControlName="Remember" color="primary">Remember me!</mat-checkbox>
+              </label>
+            </div>
+
+            <a flag="info" class="btn btn-register float-left" data-toggle="tooltip"
+                                title="register" routerLink="/auth/register">
+             <span>Register</span>
+            </a>
+
+            <button mat-raised-button type="submit" [disabled]="SignInForm.invalid" class="btn btn-login float-right">Login</button>
+          </form>
+          <!--END Login Form-->
+        </div>
+        <div class="col-md-8 banner-sec d-none d-md-inline">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

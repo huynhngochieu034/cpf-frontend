@@ -1,0 +1,96 @@
+.login-block {
+  background: url("https://static.digit.in/default/d82cfcbc332e14e49448187be2df463cee82468a.jpeg") no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+  padding: 50px 0;
+}
+.banner-sec {
+  background: url("https://static.digit.in/default/d82cfcbc332e14e49448187be2df463cee82468a.jpeg") no-repeat left bottom;
+  background-size: cover;
+  min-height: 500px;
+  border-radius: 0 10px 10px 0;
+  padding: 0;
+}
+.container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 15px 20px 0 rgba(0, 0, 0, 0.1);
+}
+.carousel-inner {
+  border-radius: 0 10px 10px 0;
+}
+.carousel-caption {
+  text-align: left;
+  left: 5%;
+}
+.login-sec {
+  padding: 50px 30px;
+  position: relative;
+}
+.login-sec .copy-text {
+  position: absolute;
+  width: 80%;
+  bottom: 20px;
+  font-size: 13px;
+  text-align: center;
+}
+.login-sec .copy-text i {
+  color: #feb58a;
+}
+.login-sec .copy-text a {
+  color: #e36262;
+}
+.login-sec h2 {
+  margin-bottom: 30px;
+  font-weight: 800;
+  font-size: 30px;
+  color: #de6262;
+}
+.login-sec h2:after {
+  content: " ";
+  width: 100px;
+  height: 5px;
+  background: #feb58a;
+  display: block;
+  margin-top: 20px;
+  border-radius: 3px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.btn-login {
+  background: #de6262;
+  color: #fff;
+  font-weight: 600;
+  margin-top: 10px;
+}
+.btn-register {
+  background: dodgerblue;
+  color: #fff;
+  font-weight: 600;
+}
+.banner-text {
+  width: 70%;
+  position: absolute;
+  bottom: 40px;
+  padding-left: 20px;
+}
+.banner-text h2 {
+  color: #fff;
+  font-weight: 600;
+}
+.banner-text h2:after {
+  content: " ";
+  width: 100px;
+  height: 5px;
+  background: #fff;
+  display: block;
+  margin-top: 20px;
+  border-radius: 3px;
+}
+.banner-text p {
+  color: #fff;
+}
+.font-small {
+  font-size: 0.8rem;
+}

@@ -1,0 +1,61 @@
+ <!--<div class="wrapper default-theme"> -->
+    <!-- [ngClass]="getClasses()"> -->
+  <!-- <app-navbar></app-navbar> -->
+   <!--<main>-->
+    <!-- <app-sidebar></app-sidebar>-->
+    <!-- <div class="pages container-fluid pt-4 pb-4 pl-4 pr-4 ">-->
+    <!--   <router-outlet></router-outlet>-->
+     <!--  <hr>-->
+      <!-- <app-footer></app-footer> -->
+    <!-- </div>-->
+    <!-- <div class="overlay" (click)="toggleSidebar()"></div> -->
+   <!--</main>-->
+ <!--</div>-->
+ <div class="form-container">
+<div class="col-sm-12">
+   
+  <div id="action">
+    <a flag="info" class="dt-button buttons-colvis btn btn-white btn-primary btn-bold" data-toggle="tooltip"
+      title="Add vehicle" routerLink="/addvehicles">
+      <span>
+        <i class="fa fa-plus-circle bigger-110 purple"  style="color:rgb(167, 231, 167)"></i>
+      </span>
+    </a>
+
+    <a id="btnDelete" [class.disabled]="disableDelete" (click)="deleteVehicle()" type="button" class="btn btn-white btn-primary btn-bold"
+      data-toggle="tooltip" title="Delete Selected vehicle">
+      <span>
+        <i class="fa fa-trash-alt" style="color:red"></i>
+      </span>
+    </a>
+
+    
+  </div>
+    
+  <table class="table table-md">
+    <thead id="theader" style="background-color:rgb(62, 62, 175)">
+      <tr style="color: #fff">
+        <th><input type="checkbox" [(ngModel)]="isCheckedParent" (change)="checkAllChild()" name="isCheckedParent"/></th>
+        <th>VehicleID</th>
+        <th>Model</th>
+        <th>Manufacturer</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let vehicle of vehicleArr">
+          <td><input type="checkbox" (change)="checkParent(vehicle, $event)"
+            [(ngModel)]="vehicle.checked" id="checkboxChild" /></td>
+        <td>{{vehicle.vehicleId}}</td>
+        <td>{{vehicle.model}}</td>
+        <td>{{vehicle.manufacturer}}</td>
+        <td>
+          <a class="btn btn-md btn-primary btn-edit" (click)="updateVehicle(vehicle.id)" data-toggle="tooltip" title="Update Vehicle"
+           ><i class="fa fa-edit" aria-hidden="true"></i>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>

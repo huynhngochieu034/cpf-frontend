@@ -1,0 +1,246 @@
+@import "./../../styles-variables";
+// $primary: mat-palette($mat-indigo, 800, 300, 900);
+// $accent: mat-palette($mat-light-blue);
+
+:host {
+  height: 100%;
+  width: 100%;
+}
+
+.mat-sidenav {
+  width: 300px;
+
+  .branding {
+    height: 60px;
+    padding: 8px 10px;
+    font-size: 20px;
+    font-weight: 500;
+
+    img {
+      margin: 0 10px 0 0;
+      height: 40px;
+    }
+
+    span {
+      position: relative;
+      top: 3px;
+    }
+  }
+
+  .mat-nav-list {
+    padding-top: 0;
+  }
+}
+.links,
+.signature {
+  a {
+    color: mat-color($angular-template-indigo-primary, lighter);
+    // stylelint-disable-next-line selector-max-universal
+    &:hover {
+      color: mat-color($angular-template-accent);
+    }
+  }
+}
+.mat-sidenav-container {
+  height: 100%;
+  width: 100%;
+  // .footer {
+  //   color: mat-color($angular-template-indigo-primary, lighter);
+  //   background-color: mat-color($angular-template-indigo-primary, darker);
+  // }
+  .mat-toolbar {
+    height: 50px;
+    button {
+      // stylelint-disable-next-line selector-max-universal
+      &.active {
+        color: mat-color($angular-template-accent, default-contrast);
+        background-color: mat-color($angular-template-accent);
+      }
+    }
+    .link {
+      color: mat-color($angular-template-indigo-primary, default-contrast);
+    }
+    .sign-in-button {
+      color: mat-color($angular-template-accent);
+      border: 1px solid mat-color($angular-template-accent);
+    }
+  }
+
+  .wrapper {
+    // z-index: -2;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto;
+
+    .toolbar {
+      position: fixed;
+      width: 100%;
+      z-index: 2;
+      flex: 0 0 auto;
+      height: 50px;
+      .branding {
+        cursor: pointer;
+        padding-top: 4px;
+
+        &.center {
+          text-align: center;
+        }
+
+        img {
+          position: relative;
+          top: -2px;
+          height: 40px;
+        }
+      }
+      .nav-button {
+        margin: 0 10px 0 0;
+      }
+
+      .sign-in-button {
+        line-height: 35px;
+        margin-right: 10px;
+      }
+
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      @media (max-width: map-get($grid-breakpoints, lg)) {
+        .nav-button {
+          min-width: 0;
+          padding: 0 10px;
+        }
+        .sign-in-button {
+          min-width: 0;
+          padding: 0 10px;
+          margin: 0 5px 0 0;
+        }
+      }
+    }
+
+    .content {
+      padding-top: 50px;
+      // width:100%;
+      // overflow-x: hidden;
+      flex: 1 0 auto;
+      position: relative;
+    }
+
+    @media (max-width: map-get($grid-breakpoints, sm)) {
+      .content {
+        padding-top: 56px;
+      }
+    }
+  }
+
+  .mat-sidenav {
+    .mat-list-item {
+      &.active {
+        color: mat-color($angular-template-accent, default-contrast);
+        background-color: mat-color($angular-template-accent) !important;
+
+        &:hover {
+          background-color: mat-color($angular-template-accent, darker) !important;
+        }
+      }
+    }
+  }
+}
+.footer {
+  flex: 0 0 auto;
+  padding: 0 15px;
+  text-align: center;
+  z-index: 1;
+  background-color: mat-color($angular-template-indigo-primary);
+  .row {
+    padding: 5px 0;
+
+    .links {
+      a {
+        transition: padding 0.5s;
+        display: inline-block;
+        padding: 20px 5px;
+
+        &:hover {
+          text-decoration: none;
+        }
+
+        span {
+          font-size: 13px;
+          display: inline-block;
+          width: 65px;
+          padding: 0 0 0 5px;
+          overflow: hidden;
+          text-align: left;
+          white-space: nowrap;
+          transition: width 0.5s;
+        }
+      }
+
+      @media (max-width: map-get($grid-breakpoints, md)) {
+        a {
+          padding: 20px;
+
+          span {
+            width: 0;
+            padding: 0;
+          }
+        }
+      }
+
+      @media (max-width: map-get($grid-breakpoints, sm)) {
+        a {
+          padding: 20px 5px;
+        }
+      }
+    }
+
+    @media (min-width: map-get($grid-breakpoints, sm)) {
+      .signature {
+        position: relative;
+
+        a {
+          position: absolute;
+          right: 15px;
+        }
+      }
+    }
+  }
+}
+
+.green-theme {
+  .footer {
+    background-color: mat-color($angular-template-green-primary);
+  }
+}
+
+.cyan-theme {
+  .footer {
+    background-color: mat-color($angular-template-cyan-primary);
+  }
+}
+
+.icon-color {
+  width: 30px;
+  height: 30px;
+  margin: 0 2px;
+}
+
+.b-c-primary {
+  background-color: mat-color($angular-template-indigo-primary) !important;
+}
+.b-c-green {
+  background-color: mat-color($angular-template-green-primary) !important;
+}
+.b-c-cyan {
+  background-color: mat-color($angular-template-cyan-primary) !important;
+}
+.b-c-dark {
+  background-color: mat-color($angular-template-dark-primary) !important;
+}
+fa-icon {
+  font-size: 1.2rem;
+}

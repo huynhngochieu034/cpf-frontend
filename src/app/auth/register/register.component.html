@@ -1,0 +1,67 @@
+<div class="register-block">
+  <div class="container fixed-bottom">
+    <div class="row">
+      <div class="col-lg-6">
+        <div id="ui">
+          <h2>REGISTRATION FORM</h2>
+          <form class="form-group" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+
+            <label for="username">Username</label>
+            <input type="text" class="form-control" name="username" [(ngModel)]="form.username" #username="ngModel"
+              required />
+            <div *ngIf="f.submitted && username.invalid">
+              <div class="text-danger" *ngIf="username?.errors.required">Username is required</div>
+            </div>
+            <br>
+
+            <label for="fullname">Full Name</label>
+            <input type="text" class="form-control" name="fullname" [(ngModel)]="form.fullname" #fullname="ngModel"
+              required />
+            <div *ngIf="f.submitted && fullname.invalid">
+              <div class="text-danger" *ngIf="fullname?.errors.required">Full name is required</div>
+            </div>
+            <br>
+
+            <label for="email">Email</label>
+            <input type="text" class="form-control" name="email" [(ngModel)]="form.email" #email="ngModel" required
+              email />
+            <div *ngIf="f.submitted && email.invalid">
+              <div class="text-danger" *ngIf="email?.errors.required">Email is required</div>
+              <div class="text-danger" *ngIf="email?.errors.email">Email must be a valid email address</div>
+            </div>
+            <br>
+
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" [(ngModel)]="form.password" #password="ngModel"
+              required minlength="6" />
+            <div *ngIf="f.submitted && password.invalid">
+              <div class="text-danger" *ngIf="password?.errors.required">Password is required</div>
+              <div class="text-danger" *ngIf="password?.errors.minlength">Password must be at least 6 characters</div>
+            </div>
+            <br>
+
+            <div class="row">
+
+              <div class="col-lg-6">
+                <button class="btn btn-primary">Register</button>
+              </div>
+
+              <div class="col-lg-6">
+                <a flag="info" class="btn btn-danger float-right" data-toggle="tooltip" title="back to login"
+                  routerLink="/auth/login">
+                  <span>Back</span>
+                </a>
+              </div>
+            </div>
+            <div *ngIf="f.submitted && isSignUpFailed" class="alert alert-warning fixed">
+                Signup failed!<br />{{errorMessage}}
+              </div>
+              <div *ngIf="isSuccess" class="alert alert-success fixed">
+                Signup success!<br />{{successMessage}}
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
