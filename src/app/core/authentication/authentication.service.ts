@@ -43,44 +43,41 @@ const httpOptions = {
  */
 @Injectable()
 export class AuthenticationService {
-  
-  private roles: Array<string> = [];
+
+
   private loginUrl = 'http://localhost:8181/api/auth/signin';
   private signupUrl = 'http://localhost:8181/api/auth/signup';
   private loginInfo: AuthLoginInfo;
- 
-  
+  private roles: Array<string> = [];
+
+
   private _credentials: Credentials | null;
   authChanged$ = new Subject();
   private _tempUserName: string;
 
-  constructor(private http: HttpClient,private router: Router) {
+  constructor(private http: HttpClient, private router: Router) {
     const savedCredentials = sessionStorage.getItem(credentialsKey) || localStorage.getItem(credentialsKey);
     if (savedCredentials) {
       this._credentials = JSON.parse(savedCredentials);
     }
   }
 
-   /**
-   * Authenticates the user.
-   * @param context The login parameters.
-   */
+  /**
+  * Authenticates the user.
+  * @param context The login parameters.
+  */
   login(context: LoginContext) {
     this.loginInfo = new AuthLoginInfo(context.username, context.password);
     this.attemptAuth(this.loginInfo).subscribe(
       data => {
-        //console.log(data.accessToken);
-        //console.log(data.username);
         const dataUser = {
-            
-              username: data.username,
-              token: data.accessToken,
-              isAdmin: true
-            };
-         
-            this._tempUserName = data.username;
-            this.setCredentials(dataUser, context.remember);
-            this.router.navigate(['/home']);
+          username: data.username,
+          token: data.accessToken,
+          isAdmin: true
+        };
+        this._tempUserName = data.username;
+        this.setCredentials(dataUser, context.remember);
+        this.router.navigate(['/home']);
       },
       error => {
         console.log(error);
@@ -114,18 +111,17 @@ export class AuthenticationService {
   signUp(info: SignUpInfo): Observable<string> {
     return this.http.post<string>(this.signupUrl, info, httpOptions);
   }
-  
-  public getToken(): string {
-    return sessionStorage.getItem(TOKEN_KEY);
-  }
 
-  public getUsername(): string {
-    return sessionStorage.getItem(USERNAME_KEY);
+  public getToken(): string {
+    if (localStorage != null) {
+      return localStorage.getItem(TOKEN_KEY);
+    } else {
+      return sessionStorage.getItem(TOKEN_KEY);
+    }
   }
 
   public getAuthorities(): string[] {
     this.roles = [];
-
     if (sessionStorage.getItem(TOKEN_KEY)) {
       JSON.parse(sessionStorage.getItem(AUTHORITIES_KEY)).forEach(authority => {
         this.roles.push(authority.authority);
@@ -140,7 +136,11 @@ export class AuthenticationService {
    */
   logout(): Observable<any> {
     if (!this._tempUserName) {
-      let logOut = JSON.parse(localStorage.getItem(credentialsKey));
+      if (localStorage) {
+        var logOut = JSON.parse(localStorage.getItem(credentialsKey));
+      } else {
+        var logOut = JSON.parse(sessionStorage.getItem(credentialsKey));
+      }
       this._tempUserName = logOut.username;
     }
     this.setCredentials();
@@ -173,10 +173,13 @@ export class AuthenticationService {
     if (credentials) {
       const storage = remember ? localStorage : sessionStorage;
       storage.setItem(credentialsKey, JSON.stringify(credentials));
+      storage.setItem(USERNAME_KEY, credentials.username);
       this.authChanged$.next();
     } else {
       sessionStorage.removeItem(credentialsKey);
       localStorage.removeItem(credentialsKey);
+      sessionStorage.removeItem(USERNAME_KEY);
+      localStorage.removeItem(USERNAME_KEY);
     }
   }
 }

@@ -13,21 +13,22 @@ import { AuthenticationService } from 'src/app/core/authentication/authenticatio
 })
 export class RegisterComponent implements OnInit {
   //constructor(private authService: AuthService) {}
-  constructor(private authService: AuthenticationService) {}
+  constructor(private authService: AuthenticationService) { }
 
-  
+
   form: any = {};
   signupInfo: SignUpInfo;
   isSignedUp = false;
   isSignUpFailed = false;
-  isSuccess =  false;
+  isSuccess = false;
   errorMessage = '';
-  successMessage= '';
+  successMessage = '';
 
   ngOnInit() {
-    
+
   }
 
+  /**CHỨC NĂNG ĐĂNG KÝ */
   onSubmit() {
     console.log(this.form);
 
@@ -43,7 +44,7 @@ export class RegisterComponent implements OnInit {
         this.successMessage = "User registered successfully!";
         this.isSignedUp = true;
         this.isSignUpFailed = false;
-        this.isSuccess =true;
+        this.isSuccess = true;
       },
       error => {
         console.log(error);

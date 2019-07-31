@@ -3,6 +3,7 @@
     <div class="row">
       <div class="col-lg-6">
         <div id="ui">
+           <!--BEGIN Register Form-->
           <h2>REGISTRATION FORM</h2>
           <form class="form-group" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
 
@@ -54,12 +55,13 @@
               </div>
             </div>
             <div *ngIf="f.submitted && isSignUpFailed" class="alert alert-warning fixed">
-                Signup failed!<br />{{errorMessage}}
-              </div>
-              <div *ngIf="isSuccess" class="alert alert-success fixed">
-                Signup success!<br />{{successMessage}}
-              </div>
+              Signup failed!<br />{{errorMessage}}
+            </div>
+            <div *ngIf="isSuccess" class="alert alert-success fixed">
+              Signup success!<br />{{successMessage}}
+            </div>
           </form>
+          <!--END Register Form-->
         </div>
       </div>
     </div>

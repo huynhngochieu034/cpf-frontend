@@ -18,32 +18,29 @@ import { VehInfo } from 'src/app/core/service/data-model/VehInfo';
 })
 export class FleetingMapComponent implements OnInit, AfterViewInit {
 
-  constructor(private mockUpService: TrafficUrlService, private activated: ActivatedRoute) {}
+  constructor(private mockUpService: TrafficUrlService, private activated: ActivatedRoute) { }
 
-  maxZoomLevel:boolean=false;
-  sizeVehicles:number=0;
-  dem:number=0;
-  public ids=[];
-  public vehicleArr2=[];
-  public checkedVehicleArr=[];
-  public tempVehicleIdArr:any[]=[];
-
-  labelOptions={};
-  isCollapsed= false;
-  totalCheckBoxChild:number;
-  isCheckedParent:boolean = false;
-  disableDelete:boolean = true;
+  maxZoomLevel: Boolean = false;
+  sizeVehicles: Number = 0;
+  dem: Number = 0;
+  ids = [];
+  checkedVehicleArr = [];
+  labelOptions = {};
+  isCollapsed = false;
+  totalCheckBoxChild: Number;
+  isCheckedParent: Boolean = false;
+  disableDelete: Boolean = true;
 
   /**CENTERALIZE MAP */
   originlat: Number = 10.817996728;
   originlng: Number = 106.651164062;
   zoom: Number = 14;
-  iconCircleMap='assets/icons/icon-circlemap.png';
+  iconCircleMap = 'assets/icons/icon-circlemap.png';
   iconLink = 'assets/img/car_normal.png';
   iconWarning = 'assets/img/car_warning.png';
   iconAlert = 'assets/img/car_alert.png';
   mapSpot = 'assets/img/map-spot_2.png';
-  zoomOptz: Number = 2;
+  zoomOptz: number = 2;
   overView: Boolean = false;
   /**Handler Variable for returned data */
   public mockupData: Subscription;
@@ -58,21 +55,21 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
 
   finishedFirtFetch = false;
   ngOnInit() {
-   
+
     /**get subscription mockup data */
-    this.fecthVehicle2();
-   
+    this.fecthVehicle();
+
     // this.fecthVehicle();
     console.log(this.ids);
-    if(this.ids!==[]){
-      while (this.finishedFirtFetch == false) {}
+    if (this.ids !== []) {
+      while (this.finishedFirtFetch == false) { }
       this.testInterval = setInterval(() => {
-        this.fecthLastVehicle2();
+        this.fecthLastVehicle();
       }, 5000);
     }
-   
-   
-    $(document).ready(function() {
+
+
+    $(document).ready(function () {
       /**Fix height of MAP window */
       var outletH = $('.row').outerHeight();
       console.log('out-let content Height: ', outletH);
@@ -82,12 +79,12 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
     });
   }
   /**After View Configuration */
-  ngAfterViewInit() {}
+  ngAfterViewInit() { }
   /** FIT BOUNDDARY */
 
-/** FECTH DATA FROM RESFUL API DEMO */
-  private fecthVehicle2 = () => {
-    this.mockUpService.getALLVehicle().subscribe(data=> this.checkedVehicleArr = data);
+  /** FECTH DATA FROM RESFUL API DEMO */
+  private fecthVehicle = () => {
+    this.mockUpService.getALLVehicle().subscribe(data => this.checkedVehicleArr = data);
     //     this.mockupData = this.mockUpService.getALLVehicle().subscribe((res: any) => {
     //   // console.log(res)
     //   res.forEach(value => {
@@ -113,93 +110,36 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
     //   // console.log(this.globMarker);
     // });
     this.finishedFirtFetch = true;
-};
+  };
 
-private fecthLastVehicle2 = () => {
-  this.mockupData = this.mockUpService.getVehicleById(this.ids).subscribe((res: any) => {
-    // console.log(res)
-    res.forEach(value => {
-      let vehInfo: VehInfo = value;
-      let ret = new PID(vehInfo);
-      console.log(ret);
-      if (this.vehicleArr2 == null || this.vehicleArr2.indexOf(ret.VehicleId) == -1) {
-        console.log(`Initializing ${ret.VehicleId} DB...`);
+  private fecthLastVehicle = () => {
+    this.mockupData = this.mockUpService.getVehicleById(this.ids).subscribe((res: any) => {
+      // console.log(res)
+      res.forEach(value => {
+        let vehInfo: VehInfo = value;
+        let ret = new PID(vehInfo);
+        console.log(ret);
+        if (this.vehicleArr == null || this.vehicleArr.indexOf(ret.VehicleId) == -1) {
+          console.log(`Initializing ${ret.VehicleId} DB...`);
 
-        /**Store All Newly Created CarID to an Array */
-        this.vehicleArr2.push(ret.VehicleId);
+          /**Store All Newly Created CarID to an Array */
+          this.vehicleArr.push(ret.VehicleId);
 
-        /**Store All Newly Created Car's STATUS to Json object and set Boundary*/
-        this.newVehicleStat(ret);
-      } else {
-        /**Update CarStat */
-        console.log(
-          `Update ${ret.VehicleId} DB Status at GpsLongitude: ${ret.GpsLongitude} || GpsLatitude: ${ret.GpsLatitude}`
-        );
-        this.updateVehicleStat(ret);
-      }
+          /**Store All Newly Created Car's STATUS to Json object and set Boundary*/
+          this.newVehicleStat(ret);
+        } else {
+          /**Update CarStat */
+          console.log(
+            `Update ${ret.VehicleId} DB Status at GpsLongitude: ${ret.GpsLongitude} || GpsLatitude: ${ret.GpsLatitude}`
+          );
+          this.updateVehicleStat(ret);
+        }
+      });
+      console.log(this.globMarker);
+
     });
-     console.log(this.globMarker);
-     
-  });
-};
+  };
 
-
-
-  /** FECTH DATA FROM RESFUL API */
-  // private fecthVehicle = () => {
-  //   this.mockupData = this.mockUpService.getAllJSON().subscribe((res: any) => {
-  //     // console.log(res)
-  //     res.forEach(value => {
-  //       let vehInfo: VehInfo = JSON.parse(value);
-  //       let ret = new PID(vehInfo);
-  //       console.log(ret);
-  //       if (this.vehicleArr == null || this.vehicleArr.indexOf(ret.VehicleId) == -1) {
-  //         console.log(`Initializing ${ret.VehicleId} DB...`);
-
-  //         /**Store All Newly Created CarID to an Array */
-  //         this.vehicleArr.push(ret.VehicleId);
-
-  //         /**Store All Newly Created Car's STATUS to Json object and set Boundary*/
-  //         this.newVehicleStat(ret);
-  //       } else {
-  //         /**Update CarStat */
-  //         console.log(
-  //           `Update ${ret.VehicleId} DB Status at GpsLongitude: ${ret.GpsLongitude} || GpsLatitude: ${ret.GpsLatitude}`
-  //         );
-  //         this.updateVehicleStat(ret);
-  //       }
-  //     });
-  //     // console.log(this.globMarker);
-  //   });
-  //   this.finishedFirtFetch = true;
-  // };
-
-  // private fecthLastVehicle = () => {
-  //   this.mockupData = this.mockUpService.getLastJSON().subscribe((res: any) => {
-  //     // console.log(res)
-  //     res.forEach(value => {
-  //       let vehInfo: VehInfo = JSON.parse(value);
-  //       let ret = new PID(vehInfo);
-  //       console.log(ret);
-  //       if (this.vehicleArr == null || this.vehicleArr.indexOf(ret.VehicleId) == -1) {
-  //         console.log(`Initializing ${ret.VehicleId} DB...`);
-
-  //         /**Store All Newly Created CarID to an Array */
-  //         this.vehicleArr.push(ret.VehicleId);
-
-  //         /**Store All Newly Created Car's STATUS to Json object and set Boundary*/
-  //         this.newVehicleStat(ret);
-  //       } else {
-  //         /**Update CarStat */
-  //         console.log(
-  //           `Update ${ret.VehicleId} DB Status at GpsLongitude: ${ret.GpsLongitude} || GpsLatitude: ${ret.GpsLatitude}`
-  //         );
-  //         this.updateVehicleStat(ret);
-  //       }
-  //     });
-  //     // console.log(this.globMarker);
-  //   });
-  // };
   /** ADD NEW Member */
   private newVehicleStat = (ret: PID) => {
     let markValue: any = {
@@ -253,23 +193,25 @@ private fecthLastVehicle2 = () => {
   public SetVehID = (ID: string) => {
     console.log(`Car ${ID} has been chosen`);
     this.carSetID = ID;
-    this.carSetPathIndex = this.globMarker.CarMark[this.carSetID].path.length -1;
+    this.carSetPathIndex = this.globMarker.CarMark[this.carSetID].path.length - 1;
   };
+
   checkZoom = event => {
     console.log('Map Zoom level: ', event);
     this.overView = true;
-    if(event <= 10){
-      this.labelOptions= {
+    if (event <= 10) {
+      /**Convert to number of vehicle in google map */
+      this.labelOptions = {
         color: 'white',
         fontFamily: 'Times New Roman',
         fontSize: '30px',
         fontWeight: 'bold',
-        text: this.vehicleArr2.length.toString(),
-        }
-      this.maxZoomLevel=true;
+        text: this.vehicleArr.length.toString(),
+      }
+      this.maxZoomLevel = true;
     }
-    else{
-      this.maxZoomLevel=false;
+    else {
+      this.maxZoomLevel = false;
     }
     if (event >= 19) {
       this.zoomOptz = 4;
@@ -293,55 +235,58 @@ private fecthLastVehicle2 = () => {
     }
   }
 
-  checkAllChild(){
-    if(this.isCheckedParent){
-      for(var i=0 ; i < this.checkedVehicleArr.length; i++) {
+  /**Check all check box child when check box parent checked */
+  checkAllChild() {
+    if (this.isCheckedParent) {
+      for (var i = 0; i < this.checkedVehicleArr.length; i++) {
         this.checkedVehicleArr[i].checked = true;
       }
-      this.disableDelete=false;
-    }else{
-      for(var i=0 ; i < this.checkedVehicleArr.length; i++) {
+      this.disableDelete = false;
+    } else {
+      for (var i = 0; i < this.checkedVehicleArr.length; i++) {
         this.checkedVehicleArr[i].checked = false;
       }
-      this.disableDelete=true;
+      this.disableDelete = true;
     }
   }
 
-  checkParent(vehicle, event){
+  /**Check check box parent when all check box child checked */
+  checkParent(vehicle, event) {
     this.totalCheckBoxChild = this.checkedVehicleArr.length;
-    if(event.target.checked){
+    if (event.target.checked) {
       vehicle.checked = true;
       this.disableDelete = false;
-    }else{
+    } else {
       vehicle.checked = false;
-      if(this.checkedVehicleArr.filter(opt => opt.checked).length == 0){
+      if (this.checkedVehicleArr.filter(opt => opt.checked).length == 0) {
         this.disableDelete = true;
       }
     }
-     this.dem = this.checkedVehicleArr.filter(opt => opt.checked).length;
-     if(this.dem == this.totalCheckBoxChild){
+    this.dem = this.checkedVehicleArr.filter(opt => opt.checked).length;
+    if (this.dem == this.totalCheckBoxChild) {
       this.isCheckedParent = true;
-     }else{
+    } else {
       this.isCheckedParent = false;
-     }
+    }
 
   }
 
-  affectGoogleMap(){
-    var j=0;
-    this.ids =[];
-    this.vehicleArr2 =[];
+  /**Show vehicle selected in google map */
+  affectGoogleMap() {
+    var j = 0;
+    this.ids = [];
+    this.vehicleArr = [];
     //this.ngOnInit();
-   // this.finishedFirtFetch = false;
-  
-    for(var i=0; i< this.checkedVehicleArr.length; i++){
-      if(this.checkedVehicleArr[i].checked){
-         this.ids[j] = this.checkedVehicleArr[i].vehicleId;
-         console.log("Gia tri la: "+this.ids[j]);
-         j++;
+    // this.finishedFirtFetch = false;
+
+    for (var i = 0; i < this.checkedVehicleArr.length; i++) {
+      if (this.checkedVehicleArr[i].checked) {
+        this.ids[j] = this.checkedVehicleArr[i].vehicleId;
+        console.log("Gia tri la: " + this.ids[j]);
+        j++;
       }
     }
-    
+
   }
-  
+
 }

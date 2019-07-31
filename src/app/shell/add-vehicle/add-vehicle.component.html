@@ -1,48 +1,44 @@
-
 <div class="container-fluid">
   <div class="form-container">
-      <div class="row">
-          <div class= "col-md-7">
-              <h3 *ngIf="checked">Add New Vehicle</h3>
-              <h3 *ngIf="!checked">Update Vehicle</h3>
-          
-          </div>
-  
+    <div class="row">
+      <div class="col-md-7">
+        <h3 *ngIf="checked">Add New Vehicle</h3>
+        <h3 *ngIf="!checked">Update Vehicle</h3>
       </div>
-    <form class="main-form" #vehicleForm="ngForm" (ngSubmit)="onSubmit()" novalidate >
+    </div>
+     <!--BEGIN Add-vehicle Form-->
+    <form class="main-form" #vehicleForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="row">
         <div class="col-lg-12">
           <label>Vehicle ID</label>
-          <input type="text" required #vehicleid="ngModel" [class.is-invalid]="vehicleid.invalid && vehicleid.touched" 
-          class="form-control" placeholder="Enter vehicle id" name="vehicleid" [(ngModel)]="vehicle.vehicleId">
-          <small class="text-danger" [class.d-none]="vehicleid.valid || vehicleid.untouched" >VehicleID is required</small>
+          <input type="text" required #vehicleid="ngModel" [class.is-invalid]="vehicleid.invalid && vehicleid.touched"
+            class="form-control" placeholder="Enter vehicle id" name="vehicleid" [(ngModel)]="vehicle.vehicleId">
+          <small class="text-danger" [class.d-none]="vehicleid.valid || vehicleid.untouched">VehicleID is
+            required</small>
         </div>
       </div>
-   <br>
+      <br>
       <div class="row">
-      <div class="col-lg-12">
-        <label>Model</label>
-        <input class="form-control" placeholder="Enter model" name="model" [(ngModel)]="vehicle.model">
+        <div class="col-lg-12">
+          <label>Model</label>
+          <input class="form-control" placeholder="Enter model" name="model" [(ngModel)]="vehicle.model">
+        </div>
       </div>
-    </div>
-    <br>
+      <br>
       <div class="row">
-      <div class="col-lg-12">
-        <label>Manufacturer</label>
-        <input type="text" class="form-control" placeholder="Enter manufacturer" name="manufacturer" [(ngModel)]="vehicle.manufacturer">
+        <div class="col-lg-12">
+          <label>Manufacturer</label>
+          <input type="text" class="form-control" placeholder="Enter manufacturer" name="manufacturer"
+            [(ngModel)]="vehicle.manufacturer">
+        </div>
       </div>
-    </div>
-    <br>
-      
-          <button [disabled]="vehicleForm.form.invalid" 
-            class="btn btn-primary" type="submit" *ngIf="checked">Add Vehicle</button>
-      
-            <button [disabled]="vehicleForm.form.invalid" 
-            class="btn btn-primary" type="submit" *ngIf="!checked">Update Vehicle</button>
-    
-     
+      <br>
+      <button [disabled]="vehicleForm.form.invalid" class="btn btn-primary" type="submit" *ngIf="checked">Add
+        Vehicle</button>
+      <button [disabled]="vehicleForm.form.invalid" class="btn btn-primary" type="submit" *ngIf="!checked">Update
+        Vehicle</button>
     </form>
-  
+<!--END Add-vehicle Form-->
     <div class="alert alert-danger" *ngIf="errorMsg">
       {{errorMsg}}
     </div>

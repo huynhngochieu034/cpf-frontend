@@ -8,21 +8,21 @@ import * as $ from 'jquery';
   providedIn: 'root'
 })
 export class IsAdminGuard implements CanActivate {
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
   private key: string = 'credentials';
- // private key22: string = 'username';
+  // private key22: string = 'username';
   //canActivate sẽ verify quyền vào trang
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
     if (localStorage.getItem(this.key) || sessionStorage.getItem(this.key)) {
-      if(localStorage.getItem(this.key)){
+      if (localStorage.getItem(this.key)) {
         var sUerInfo: string = localStorage.getItem(this.key);
-      }else{
+      } else {
         var sUerInfo: string = sessionStorage.getItem(this.key);
       }
-      
+
       let userLogin = JSON.parse(sUerInfo);
 
       if (userLogin.isAdmin) {

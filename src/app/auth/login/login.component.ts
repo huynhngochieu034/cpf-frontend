@@ -16,15 +16,12 @@ import { FormGroup, FormControl, Validators, NgForm } from '@angular/forms';
 export class LoginComponent implements OnInit {
 
   roles: string[] = [];
-  constructor(private authenticationService: AuthenticationService, private router: Router) {}
+  constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
   @ViewChild('SignInForm') SiForm: NgForm;
   public formLogin: FormGroup;
 
   ngOnInit() {
-    if (this.authenticationService.getToken()) {
-      this.roles = this.authenticationService.getAuthorities();
-    }
     /**VALIDATOR FOR SIGN IN FORM */
     this.formLogin = new FormGroup({
       TaiKhoanSI: new FormControl(null, [Validators.required]),
@@ -37,11 +34,11 @@ export class LoginComponent implements OnInit {
     $('.error').remove();
   }
 
-  /**CHỨC NĂNG ĐĂNG NHẬP - ĐĂNG KÝ */
+  /**CHỨC NĂNG ĐĂNG NHẬP*/
   DangNhap() {
     console.log(this.formLogin.value);
     let loginObject = this.formLogin.value;
-    if(loginObject.Remember===null){
+    if (loginObject.Remember === null) {
       loginObject.Remember = false;
     }
     const context: LoginContext = {
@@ -53,42 +50,4 @@ export class LoginComponent implements OnInit {
     //Call Authentication Service
     this.authenticationService.login(context);
   }
-
-  // DangNhap() {
-  //   let loginObject = this.formLogin.value;
-  //    const context: LoginContext = {
-  //     username: loginObject.TaiKhoanSI,
-  //     password: loginObject.MatKhauSI,
-  //     remember: loginObject.Remember
-  //    };
-  // (this.authenticationService.login(context).subscribe(
-  //   data => {
-  //     console.log("sucess");
-  //    if(data != null) {
-  //     this.router.navigate(['/home']);
-  //    }
-      
-  //   },
-  //   error => {
-  //     console.log("err"+error.statusText);
-  //     this.router.navigate(['/home']);
-  //   }
-  // )
-  // );
-  // }
-
-  /**CHỨC NĂNG ĐĂNG NHẬP - ĐĂNG KÝ */
-  // DangNhap(){
-  //   const body = new HttpParams()
-  //   .set('username', this.formLogin.controls.TaiKhoanSI.value)
-  //   .set('password', this.formLogin.controls.MatKhauSI.value)
-  //   .set('grant_type', 'password');
-  //   this.authenticationService.login(body.toString()).subscribe(data => {
-  //     window.sessionStorage.setItem('token', JSON.stringify(data));
-  //     console.log(window.sessionStorage.getItem('token'));
-  //     this.router.navigate(['/home']);
-  //   }, error => {
-  //       alert(error.error.error_description)
-  //   });
-  // }
 }
