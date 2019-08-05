@@ -58,17 +58,7 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
 
     /**get subscription mockup data */
     this.fecthVehicle();
-
-    // this.fecthVehicle();
-    console.log(this.ids);
-    if (this.ids !== []) {
-      while (this.finishedFirtFetch == false) { }
-      this.testInterval = setInterval(() => {
-        this.fecthLastVehicle();
-      }, 5000);
-    }
-
-
+  
     $(document).ready(function () {
       /**Fix height of MAP window */
       var outletH = $('.row').outerHeight();
@@ -109,7 +99,7 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
     //   });
     //   // console.log(this.globMarker);
     // });
-    this.finishedFirtFetch = true;
+     //this.finishedFirtFetch = true;
   };
 
   private fecthLastVehicle = () => {
@@ -277,8 +267,11 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
     this.ids = [];
     this.vehicleArr = [];
     //this.ngOnInit();
-    // this.finishedFirtFetch = false;
-
+     //this.finishedFirtFetch = false;
+    //   this.globMarker = {
+    //   CarStat: [],
+    //   CarMark: []
+    // };
     for (var i = 0; i < this.checkedVehicleArr.length; i++) {
       if (this.checkedVehicleArr[i].checked) {
         this.ids[j] = this.checkedVehicleArr[i].vehicleId;
@@ -286,7 +279,15 @@ export class FleetingMapComponent implements OnInit, AfterViewInit {
         j++;
       }
     }
+   
+    this.testInterval = setInterval(() => {
+      this.fecthLastVehicle();
+    }, 1000);
+    //this.fecthLastVehicle();
+    //this.finishedFirtFetch = true;
+
 
   }
+  
 
 }
